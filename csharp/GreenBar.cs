@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace csharp
 {
@@ -12,78 +13,78 @@ namespace csharp
 
         public void UpdateQuality()
         {
-            for (var i = 0; i < Items.Count; i++)
+            foreach (Item item in Items)
             {
-                if (Items[i].Name != "Old Camembert" && Items[i].Name != "VIP passes to Yesterdayland concert")
+                if (item.Name.Contains("Old Camembert") || item.Name.Contains("VIP passes"))
                 {
-                    if (Items[i].Quality > 0)
+                    if(item.SellIn != 0)
                     {
-                        if (Items[i].Name != "Thunderfury, Blessed Blade of the Windseeker")
-                        {
-                            Items[i].Quality = Items[i].Quality - 1;
-                        }
-                    }
-                }
-                else
-                {
-                    if (Items[i].Quality < 50)
-                    {
-                        Items[i].Quality = Items[i].Quality + 1;
-
-                        if (Items[i].Name == "VIP passes to Yesterdayland concert")
-                        {
-                            if (Items[i].SellIn < 11)
-                            {
-                                if (Items[i].Quality < 50)
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
-
-                            if (Items[i].SellIn < 6)
-                            {
-                                if (Items[i].Quality < 50)
-                                {
-                                    Items[i].Quality = Items[i].Quality + 1;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (Items[i].Name != "Thunderfury, Blessed Blade of the Windseeker")
-                {
-                    Items[i].SellIn = Items[i].SellIn - 1;
-                }
-
-                if (Items[i].SellIn < 0)
-                {
-                    if (Items[i].Name != "Old Camembert")
-                    {
-                        if (Items[i].Name != "VIP passes to Yesterdayland concert")
-                        {
-                            if (Items[i].Quality > 0)
-                            {
-                                if (Items[i].Name != "Thunderfury, Blessed Blade of the Windseeker")
-                                {
-                                    Items[i].Quality = Items[i].Quality - 1;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            Items[i].Quality = Items[i].Quality - Items[i].Quality;
-                        }
+                        ReduceSellIn(item);
+                        IncreaseQuality(item);
                     }
                     else
                     {
-                        if (Items[i].Quality < 50)
-                        {
-                            Items[i].Quality = Items[i].Quality + 1;
-                        }
+                        item.Quality = 0;
+                    }
+                    
+                }
+                else
+                {
+                    if (!item.Name.Contains("Thunderfury"))
+                    {
+                        ReduceSellIn(item);
+                        ReduceQuality(item);
+                    }
+                } 
+            }
+        }
+
+
+        //splitted off the logic to increase and decrease the sellin and quality parameters makes the code easier to digest
+        private void ReduceSellIn(Item item)
+        {
+            if (item.SellIn > 0)
+            {
+                item.SellIn--;
+            }
+            
+        }
+
+        private void ReduceQuality(Item item)
+        {
+            if (item.Quality > 0)
+            {
+                if ((item.SellIn == 0 && item.Quality >=2) || item.Name.Contains("Conjured"))
+                    item.Quality -= 2;
+                else
+                    item.Quality--;
+            }
+        }
+        private void IncreaseQuality(Item item)
+        {
+            if (item.Quality < 50)
+            {
+                if (item.SellIn > 10)
+                {
+                    item.Quality++;
+                }
+                else
+                {
+                    if (item.SellIn <= 10 && item.SellIn > 5)
+                    {
+                        item.Quality += 2;
+                    }
+                    else
+                    {
+                        item.Quality += 3;
                     }
                 }
+            }
+            else
+            {
+                item.Quality = 50;
             }
         }
     }
 }
+
